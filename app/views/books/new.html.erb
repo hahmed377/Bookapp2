@@ -1,0 +1,5 @@
+<%= link_to('Logout', destroy_user_session_path, method: :delete) %>
+
+<h1>New Book</h1>
+<%= render 'form', book: @book %>
+<%= link_to 'Back', books_path %>
