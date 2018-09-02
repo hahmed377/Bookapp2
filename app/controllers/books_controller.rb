@@ -1,5 +1,8 @@
 class BooksController < ApplicationController
-  # before_action :authenticate_user!
+rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+include Pundit
+
+
   before_action :set_book, only: [:show, :edit, :update, :destroy]
   before_action :authenticate_user!, expect: [:show, :index]
 
@@ -18,6 +21,7 @@ class BooksController < ApplicationController
   def new
     @user = current_user.id
     @book = Book.new
+
 
   end
 
@@ -57,14 +61,26 @@ class BooksController < ApplicationController
 
   # DELETE /books/1
   # DELETE /books/1.json
+
   def destroy
-    @book.destroy
+    @book = Book.find(params[:id])
+    authorize @book, :delete?
+    if @book.destroy
+  if @book.destroy
+    # redirect_to books_url
+  else
+    render :edit
+  end
     respond_to do |format|
       format.html { redirect_to books_url, notice: 'Book was successfully destroyed.' }
       format.json { head :no_content }
+      end
     end
   end
-
+  def user_not_authorized
+    flash[:alert] = "You are not authorized to preform this action"
+     redirect_to books_url
+  end
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_book
